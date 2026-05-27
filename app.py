@@ -5,7 +5,7 @@ import streamlit.components.v1 as components
 st.set_page_config(layout="wide")
 
 # Opcional: Adicionar um título do Streamlit acima do seu HTML
-st.title("🏗️ KRC Projetos - Interface Integrada")
+
 
 # Função para ler o seu arquivo HTML original
 def carregar_html():
