@@ -14,5 +14,5 @@ def carregar_html():
     return html_content
 
 # Injetando o HTML dentro do app
-st.subheader("Visualização da Interface Original:")
+
 components.html(carregar_html(), height=1200, scrolling=True)
