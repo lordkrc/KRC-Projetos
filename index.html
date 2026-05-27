@@ -33,6 +33,14 @@
             flex-direction: column;
             min-height: 100vh;
         }
+        /* Isso remove as margens padrão do navegador */
+        html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden; /* Evita barra de rolagem horizontal */
+    }
 
         .header {
             background-color: var(--header-bg);
