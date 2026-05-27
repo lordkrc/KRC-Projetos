@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estimador de Obras — KRC Projetos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <style>
+        :root {
+            --brand-primary: #059669; 
+            --brand-dark: #047857;
+            --bg-main: #f8fafc;       
+            --bg-card: #ffffff;
+            --header-bg: #0f172a;   
+            --text-title: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --radius: 10px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-body);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .header {
+            background-color: var(--header-bg);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header h2 {
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ffffff;
+            margin: 0;
+            display: inline-block;
+            cursor: pointer;
+            transition: color 0.2s;
+            user-select: none;
+        }
+        
+        .header h2:hover { color: #94a3b8; }
+
+        .main-content {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+
+        h1 { 
+            color: var(--text-title); 
+            font-size: 1.8rem; 
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        h2 { 
+            color: var(--text-title); 
+            font-size: 1.4rem; 
+            margin-bottom: 20px; 
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius);
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.02);
+        }
+
+        .info-box {
+            background-color: #f1f5f9;
+            border-left: 4px solid var(--text-muted);
+            padding: 15px 20px;
+            border-radius: var(--radius);
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--text-body);
+        }
+        .info-box strong { color: var(--text-title); }
+
+        .welcome-hero {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            padding: 40px;
+            border-radius: var(--radius);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .welcome-hero h1 { color: white; margin-bottom: 10px; font-size: 2.2rem; }
+
+        .welcome-image-container {
+            text-align: center;
+            margin-bottom: 45px;
+            width: 100%;
+        }
+
+        .welcome-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+
+        .welcome-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius);
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            user-select: none;
+        }
+
+        .welcome-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.05);
+            border-color: var(--brand-primary);
+        }
+
+        .welcome-card h3 { margin-top: 0; font-size: 1.3rem; color: var(--text-title); }
+
+        .back-nav { margin-bottom: 25px; }
+        .back-btn {
+            background-color: #e2e8f0;
+            color: var(--text-title);
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+            user-select: none;
+        }
+        .back-btn:hover { background-color: #cbd5e1; }
+
+        .expander-header {
+            background-color: #f1f5f9;
+            padding: 16px 25px;
+            font-weight: 600;
+            color: var(--text-title);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius);
+            user-select: none;
+            transition: background-color 0.2s;
+        }
+        .expander-header:hover { background-color: #e2e8f0; }
+        .expander-body {
+            border: 1px solid #e2e8f0; border-top: none;
+            border-bottom-left-radius: var(--radius); border-bottom-right-radius: var(--radius);
+            padding: 30px; background: white; display: none;
+        }
+
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; }
+        .form-group { margin-bottom: 18px; }
+        
+        label { 
+            display: block; 
+            font-size: 0.82rem; 
+            font-weight: 600; 
+            margin-bottom: 8px; 
+            color: #475569; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        input, select {
+            width: 100%; 
+            padding: 12px 16px; 
+            border: 1px solid var(--border); 
+            border-radius: var(--radius);
+            box-sizing: border-box; 
+            font-family: inherit; 
+            font-size: 0.95rem;
+            color: var(--text-title); 
+            background-color: #f8fafc; 
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        input:hover, select:hover {
+            border-color: #94a3b8;
+            background-color: #f1f5f9;
+        }
+        
+        input:focus, select:focus { 
+            outline: none; 
+            border-color: var(--brand-primary); 
+            background-color: #ffffff; 
+            box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.12), inset 0 1px 1px rgba(0, 0, 0, 0.01); 
+        }
+
+        input::placeholder {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .radio-group { 
+            display: flex; 
+            gap: 10px; 
+            background: #e2e8f0; 
+            padding: 6px; 
+            border-radius: var(--radius); 
+            width: 100%;
+            max-width: 650px; 
+            margin-bottom: 30px; 
+        }
+        
+        .radio-btn { 
+            flex: 1;
+            padding: 12px 20px; 
+            background-color: transparent; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 0.95rem; 
+            color: var(--text-body); 
+            transition: all 0.2s ease; 
+            user-select: none;
+            text-align: center;
+        }
+        
+        .radio-btn:hover { background-color: rgba(255, 255, 255, 0.5); color: var(--text-title); }
+        .radio-btn.active { 
+            background-color: white; 
+            color: var(--brand-dark); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+            border-bottom: 3px solid var(--brand-primary);
+            font-weight: 700;
+        }
+
+        .action-btn { background-color: var(--brand-primary); color: white; border: none; padding: 12px 24px; font-size: 0.95rem; border-radius: var(--radius); cursor: pointer; font-weight: 600; transition: background 0.2s, transform 0.1s; user-select: none; }
+        .action-btn:hover { background-color: var(--brand-dark); }
+
+        .equipment-row { display: grid; grid-template-columns: 3fr 2fr 2fr 1.2fr auto; gap: 12px; align-items: center; margin-bottom: 12px; background: #ffffff; padding: 16px; border-radius: var(--radius); border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.01); }
+        .btn-danger { background-color: #ef4444; color: white; border: none; padding: 12px; border-radius: var(--radius); cursor: pointer; user-select: none; transition: background 0.2s; }
+        .btn-danger:hover { background-color: #dc2626; }
+
+        .results-section { margin-top: 40px; background: white; padding: 35px; border-radius: var(--radius); border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); display: none; }
+        .kpi-container { display: flex; gap: 20px; margin-bottom: 30px; }
+        .kpi-card { flex: 1; padding: 20px; border-radius: var(--radius); border-left: 5px solid var(--brand-primary); background: #f0fdf4; }
+        .kpi-card.blue { border-left-color: #3b82f6; background: #eff6ff; }
+        .kpi-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; }
+        .kpi-value { font-size: 1.5rem; font-weight: 700; color: var(--text-title); }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+        th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid #e2e8f0; }
+        th { background-color: #f8fafc; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; }
+
+        .page-panel { display: none; }
+        .page-panel.active { display: block; }
+        
+        .client-form-container {
+            background-color: #f8fafc;
+            border: 1px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin-top: 35px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2 onclick="resetToHome()">KRC Projetos</h2>
+    </div>
+
+    <div class="main-content">
+        
+        <div id="panel-Home" class="page-panel active">
+            <<div id="panel-Home" class="page-panel active">
+    <div class="welcome-hero">
+        <h1>Bem-vindo ao KRC Projetos</h1>
+        <p style="margin-bottom: 25px;">Plataforma inteligente para orçamentos rápidos de engenharia civil e infraestrutura tecnológica.</p>
+        
+        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); max-width: 800px; margin: 0 auto;">
+            <h4 style="margin: 0 0 8px 0; color: #fbbf24;">💡 O que é a Curva ABC?</h4>
+            <p style="font-size: 0.9rem; margin: 0; color: #e2e8f0; line-height: 1.4;">
+                A <strong>Curva ABC</strong> classifica seus custos por impacto financeiro: 
+                <span style="color: #fca5a5;"><strong>Classe A (Alto impacto)</strong></span> representam cerca de 80% do valor total; 
+                <span style="color: #fde68a;"><strong>Classe B (Médio impacto)</strong></span> somam 15%; e 
+                <span style="color: #86efac;"><strong>Classe C (Baixo impacto)</strong></span> compõem os 5% restantes. 
+                Use esta métrica para otimizar suas negociações com fornecedores.
+            </p>
+        </div>
+    </div>
+    
+    ...
+</div>
+            
+            <div class="welcome-image-container">
+                <div style="max-width: 1000px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: var(--radius); box-shadow: 0 12px 30px rgba(0,0,0,0.08); padding: 25px; text-align: left; box-sizing: border-box;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;">
+                        <div style="display: flex; gap: 6px;">
+                            <span style="width: 12px; height: 12px; background: #ef4444; border-radius: 50%; display: inline-block;"></span>
+                            <span style="width: 12px; height: 12px; background: #f59e0b; border-radius: 50%; display: inline-block;"></span>
+                            <span style="width: 12px; height: 12px; background: #10b981; border-radius: 50%; display: inline-block;"></span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500; background: #f1f5f9; padding: 4px 12px; border-radius: 20px;">krc-projetos.com.br/dashboard</div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                        <div style="background: #f0fdf4; border-left: 4px solid var(--brand-primary); padding: 15px; border-radius: 6px;">
+                            <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Projetos Simulados</div>
+                            <div style="font-size: 1.6rem; font-weight: 700; color: var(--text-title); margin-top: 5px;">2.450 m²</div>
+                        </div>
+                        <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 6px;">
+                            <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Média Globais (BOM)</div>
+                            <div style="font-size: 1.6rem; font-weight: 700; color: #1e3a8a; margin-top: 5px;">98.4% Assertividade</div>
+                        </div>
+                        <div style="background: #fff7ed; border-left: 4px solid #f97316; padding: 15px; border-radius: 6px;">
+                            <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Margem Protetiva de Perdas</div>
+                            <div style="font-size: 1.6rem; font-weight: 700; color: #7c2d12; margin-top: 5px;">10% Dinâmica</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h2 style="text-align: center; margin-bottom: 30px;">O que você deseja calcular hoje?</h2>
+            <div class="welcome-grid">
+                <div class="welcome-card" onclick="switchPage('Construcao')">
+                    <h3>🏗️ Construção Civil</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;">Calcule insumos para alvenaria, rebocos de paredes ou quantitativo de pisos com margem de perdas controlada.</p>
+                    <span style="color: var(--brand-primary); font-weight: 600; font-size: 0.9rem;">Acessar módulo &rarr;</span>
+                </div>
+                
+                <div class="welcome-card" onclick="switchPage('Redes')" style="border-left: 4px solid #3b82f6;">
+                    <h3>🌐 Infraestrutura de Redes</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;">Estime cabeamento estruturado (Cat6), eletrocalhas, switches e gerencie custos adicionais de ativos.</p>
+                    <span style="color: #3b82f6; font-weight: 600; font-size: 0.9rem;">Acessar módulo &rarr;</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="back-navigation-bar" class="back-nav" style="display: none;">
+            <button class="back-btn" onclick="resetToHome()">⬅️ Voltar ao Início</button>
+        </div>
+
+        <div id="global-parameters-card" style="display: none; margin-bottom: 35px;">
+            
+            <div class="info-box" style="border-left-color: #f59e0b; background-color: #fffbeb; margin-bottom: 15px;">
+                ⚠️ <strong>CONFIGURAÇÃO REQUERIDA:</strong> Antes de prosseguir com o cálculo, abra a aba abaixo para verificar e ajustar as <strong>métricas técnicas, rendimentos e custos locais</strong> de acordo com a realidade da sua região ou fornecedor.
+            </div>
+
+            <div class="expander-header" onclick="toggleExpander()" style="border-left: 5px solid #f59e0b; background-color: #f8fafc; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                <span style="display: flex; align-items: center; gap: 8px;">
+                    ⚙️ <strong style="color: #0f172a;">Painel de Métricas e Preços dos Insumos</strong> 
+                    <span style="font-size: 0.8rem; background: #e2e8f0; padding: 2px 8px; border-radius: 12px; color: #475569; font-weight: 500;">Verifique os Valores Aqui</span>
+                </span>
+                <span id="expander-icon" style="font-weight: bold; color: #f59e0b;">▼</span>
+            </div>
+            
+            <div class="expander-body" id="prices-expander">
+                <div id="prices-construcao-fields" class="grid-3">
+                    <div>
+                        <h4 style="margin:0 0 15px 0; color:var(--brand-primary)">Materiais Base</h4>
+                        <div class="form-group"><label>Cimento CP-II (Saco 50kg)</label><input type="number" id="p_cimento" value="35.00" step="0.1"></div>
+                        <div class="form-group"><label>Areia Lavada (m³)</label><input type="number" id="p_areia" value="90.00" step="0.1"></div>
+                        <div class="form-group"><label>Bloco Baiano 9x19x19 (Unidade)</label><input type="number" id="p_bloco" value="1.20" step="0.01"></div>
+                        <div class="form-group"><label>Piso Cerâmico / Porcelanato (m²)</label><input type="number" id="p_piso_mat" value="45.00" step="0.1"></div>
+                        <div class="form-group"><label>Argamassa Colante AC-III (Saco 20kg)</label><input type="number" id="p_argamassa" value="28.50" step="0.1"></div>
+                        <div class="form-group"><label>Rejunte Flexível (Kg)</label><input type="number" id="p_rejunte" value="9.00" step="0.1"></div>
+                    </div>
+                    <div>
+                        <h4 style="margin:0 0 15px 0; color:var(--brand-primary)">Mão de Obra / m²</h4>
+                        <div class="form-group"><label>Aplicação de Reboco</label><input type="number" id="p_mo_reboco" value="25.00" step="0.1"></div>
+                        <div class="form-group"><label>Levantamento de Alvenaria</label><input type="number" id="p_mo_alvenaria" value="30.00" step="0.1"></div>
+                        <div class="form-group"><label>Assentamento de Piso</label><input type="number" id="p_mo_piso" value="35.00" step="0.1"></div>
+                    </div>
+                    <div>
+                        <h4 style="margin:0 0 15px 0; color:var(--brand-primary)">Rendimentos Técnicos</h4>
+                        <div class="form-group"><label>Rendimento do Bloco (un/m²)</label><input type="number" id="r_bloco_m2" value="25.00" step="0.1"></div>
+                        <div class="form-group"><label>Margem de Perda Civil (%)</label><input type="number" id="perda_civil" value="10" step="1"></div>
+                    </div>
+                </div>
+
+                <div id="prices-redes-fields" class="grid-3" style="display: none;">
+                    <div>
+                        <h4 style="margin:0 0 15px 0; color:#3b82f6;">Componentes Ativos/Passivos</h4>
+                        <div class="form-group"><label>Cabo de Rede UTP Cat6 (Metro)</label><input type="number" id="p_cabo" value="3.50" step="0.1"></div>
+                        <div class="form-group"><label>Keystone + Patch Cord 1.5m (Por Ponto)</label><input type="number" id="p_kit_ponto" value="25.00" step="0.1"></div>
+                        <div class="form-group"><label>Patch Panel Cat6 24 Portas</label><input type="number" id="p_patch" value="350.00" step="1"></div>
+                        <div class="form-group"><label>Valor Metro Eletrocalha Metálica</label><input type="number" id="p_eletrocalha_mat" value="48.00" step="1"></div>
+                        <div class="form-group"><label>Kit Consumíveis (Identificação/Fixação por Ponto)</label><input type="number" id="p_consumiveis" value="5.00" step="0.5"></div>
+                    </div>
+                    <div>
+                        <h4 style="margin:0 0 15px 0; color:#3b82f6;">Mão de Obra Técnica</h4>
+                        <div class="form-group"><label>Lançamento e Identificação (Por Ponto)</label><input type="number" id="p_mo_cabo" value="150.00" step="1"></div>
+                        <div class="form-group"><label>Montagem e Clivagem de Rack (Por U)</label><input type="number" id="p_mo_rack" value="80.00" step="1"></div>
+                    </div>
+                    <div>
+                        <h4 style="margin:0 0 15px 0; color:#3b82f6;">Ativos e Métricas</h4>
+                        <div class="form-group"><label>Switch 24 Portas Giga POE</label><input type="number" id="p_switch" value="1200.00" step="1"></div>
+                        <div class="form-group"><label>Gabinete Rack Central 12U</label><input type="number" id="p_rack" value="900.00" step="1"></div>
+                        <div class="form-group"><label>Distância Média p/ Ponto (m)</label><input type="number" id="r_dist_media" value="45.00" step="1"></div>
+                        <div class="form-group"><label>Fator de Perda de Cabo (%)</label><input type="number" id="perda_cabo" value="15" step="1"></div>
+                    </div>
+                </div>
+
+                <div id="extra-equipments-container" style="display:none; margin-top:25px; border-top:1px solid #e2e8f0; padding-top:20px;">
+                    <h4 style="margin:0 0 15px 0;">➕ Dispositivos e Equipamentos Extras</h4>
+                    <button class="action-btn" style="padding: 8px 16px; font-size:0.85rem; background:#3b82f6" onclick="addExtraEquipment()">➕ Adicionar Item</button>
+                    <div id="extra-list" style="margin-top:15px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="panel-Construcao" class="page-panel">
+            <h1>Cálculos de Construção Civil</h1>
+            
+            <div class="radio-group">
+                <button class="radio-btn active" id="tab-reboco" onclick="switchCivilTab('reboco')">🧱 Reboco de Parede</button>
+                <button class="radio-btn" id="tab-alvenaria" onclick="switchCivilTab('alvenaria')">🧱 Alvenaria</button>
+                <button class="radio-btn" id="tab-piso" onclick="switchCivilTab('piso')">🟦 Piso & Revestimento</button>
+            </div>
+
+            <div id="info-reboco" class="info-box civil-info">
+                ℹ️ <strong>Mapeamento Cubagem Reboco:</strong> O consumo base de cimento é calculado volumetricamente via traço $1:2:9$ ($1\text{ kg}$ cimento rende aproximadamente $0,0053\text{ m³}$ de massa misturada).
+            </div>
+            <div id="info-alvenaria" class="info-box civil-info" style="display:none;">
+                ℹ️ <strong>Mapeamento Cubagem Alvenaria:</strong> Baseado em blocos $9\times19\times19\text{ cm}$. A argamassa de assentamento consome $22\text{ kg}$ de cimento e $0,11\text{ m³}$ de areia fina para cada $100\text{ blocos}$.
+            </div>
+            <div id="info-piso" class="info-box civil-info" style="display:none;">
+                ℹ️ <strong>Mapeamento Técnico de Piso:</strong> Cubagem calcula argamassa colante estruturada industrializada a razão fixa de $8.5\text{ kg/m²}$ e rejunte flexível a $0.5\text{ kg/m²}$.
+            </div>
+
+            <div class="card">
+                <div id="sub-reboco" class="civil-sub-panel">
+                    <div class="grid-3">
+                        <div class="form-group"><label>Comprimento da parede (m)</label><input type="number" id="reboco_l" value="8.0" step="0.5"></div>
+                        <div class="form-group"><label>Altura da parede (m)</label><input type="number" id="reboco_h" value="2.2" step="0.1"></div>
+                        <div class="form-group">
+                            <label>Lados a serem rebocados</label>
+                            <select id="reboco_sides"><option value="1">Apenas um lado</option><option value="2">Ambos os lados</option></select>
+                        </div>
+                    </div>
+                    <div class="form-group" style="max-width: 240px;"><label>Espessura do reboco (cm)</label><input type="number" id="reboco_t" value="2.0" step="0.5"></div>
+                    <button class="action-btn" onclick="calcularReboco()">Calcular Reboco</button>
+                </div>
+
+                <div id="sub-alvenaria" class="civil-sub-panel" style="display:none;">
+                    <div class="grid-3" style="grid-template-columns: 1fr 1fr;">
+                        <div class="form-group"><label>Comprimento da parede (m)</label><input type="number" id="alve_l" value="10.0" step="0.5"></div>
+                        <div class="form-group"><label>Altura da parede (m)</label><input type="number" id="alve_h" value="2.5" step="0.1"></div>
+                    </div>
+                    <button class="action-btn" onclick="calcularAlvenaria()">Calcular Alvenaria</button>
+                </div>
+
+                <div id="sub-piso" class="civil-sub-panel" style="display:none;">
+                    <div class="grid-3" style="grid-template-columns: 1fr 1fr;">
+                        <div class="form-group"><label>Comprimento da Área (m)</label><input type="number" id="piso_l" value="5.0" step="0.5"></div>
+                        <div class="form-group"><label>Largura da Área (m)</label><input type="number" id="piso_w" value="4.0" step="0.1"></div>
+                    </div>
+                    <button class="action-btn" onclick="calcularPiso()">Calcular Piso</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="panel-Redes" class="page-panel">
+            <h1>Cálculo de Infraestrutura de Redes</h1>
+            <div class="card">
+                <div class="grid-3" style="grid-template-columns: 1fr 1fr; margin-bottom:25px;">
+                    <div class="form-group"><label>Número Total de Pontos de Rede</label><input type="number" id="net_pontos" value="48" step="4"></div>
+                    <div class="form-group"><label>Metragem de Eletrocalha/Dutos (m)</label><input type="number" id="net_eletro" value="50.0" step="5"></div>
+                </div>
+                <button class="action-btn" style="background:#3b82f6" onclick="calcularRedes()">Calcular Rede</button>
+            </div>
+        </div>
+
+        <div class="results-section" id="results-area">
+            <h2>📊 Relatório Consolidado</h2>
+            <div class="kpi-container">
+                <div class="kpi-card"><div class="kpi-label" id="kpi-cost-title">Custo Estimado</div><div class="kpi-value" id="res-total-cost">R$ 0.00</div></div>
+                <div class="kpi-card blue"><div class="kpi-label">Métrica de Dimensionamento</div><div class="kpi-value" id="res-summary">0.00 m²</div></div>
+            </div>
+            
+            <div class="grid-3" style="grid-template-columns: 1.8fr 1.2fr; gap:35px; align-items: start;">
+                <div>
+                    <h3 style="font-size:1.1rem; border-bottom:2px solid #e2e8f0; padding-bottom:8px; margin-bottom:15px;">📋 Lista de Compras Qualificada (BOM)</h3>
+                    <div id="res-bom-list" style="line-height: 1.8; color:var(--text-body)"></div>
+                </div>
+                <div>
+                    <h3 style="font-size:1.1rem; border-bottom:2px solid #e2e8f0; padding-bottom:8px; margin-bottom:15px;">📊 Curva ABC de Impacto</h3>
+                    <table>
+                        <thead><tr><th>Insumo / Etapa</th><th>Subtotal</th><th>Representação</th></tr></thead>
+                        <tbody id="res-abc-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="client-form-container">
+                <h3 style="margin-top: 0; font-size: 1.1rem; color: var(--text-title);">📄 Personalizar Dados do Documento Oficial (PDF)</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Insira as informações abaixo para que o PDF seja gerado de forma profissional.</p>
+                
+                <div class="grid-3" style="grid-template-columns: 1fr 1fr 1fr;">
+                    <div class="form-group">
+                        <label>Sua Empresa (Opcional)</label>
+                        <input type="text" id="pdf_empresa_propria" placeholder="Deixe em branco para usar KRC Projetos">
+                    </div>
+                    <div class="form-group">
+                        <label>Nome / Razão Social do Cliente</label>
+                        <input type="text" id="pdf_nome_cliente" placeholder="Ex: ACME Indústria LTDA">
+                    </div>
+                    <div class="form-group">
+                        <label>Endereço da Obra / Instalação</label>
+                        <input type="text" id="pdf_endereco_cliente" placeholder="Ex: Av. Paulista, 1000 - SP">
+                    </div>
+                </div>
+                
+                <div class="grid-3" style="grid-template-columns: 1fr 1fr 1fr;">
+                    <div class="form-group">
+                        <label>Telefone / Contato do Cliente</label>
+                        <input type="text" id="pdf_fone_cliente" placeholder="Ex: (11) 99999-9999">
+                    </div>
+                    <div class="form-group">
+                        <label>Nome do Responsável Técnico (Você)</label>
+                        <input type="text" id="pdf_nome_responsavel" placeholder="Ex: Eng. Carlos Silva">
+                    </div>
+                    <div class="form-group">
+                        <label>Nome do Autorizador (Cliente)</label>
+                        <input type="text" id="pdf_nome_autorizador" placeholder="Ex: Diretor Roberto Souza">
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top:25px;">
+                <button class="action-btn" style="background-color: #0f172a;" onclick="gerarPDF()">📄 Exportar Orçamento Comercial (PDF)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 'Home';
+        let currentCivilTab = 'reboco';
+        let extraEquipments = [];
+        let currentCalculatedData = null;
+
+        function switchPage(page) {
+            currentPage = page;
+            document.querySelectorAll('.page-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(`panel-${page}`).classList.add('active');
+            
+            if (page === 'Home') {
+                document.getElementById('global-parameters-card').style.display = 'none';
+                document.getElementById('back-navigation-bar').style.display = 'none';
+            } else {
+                document.getElementById('global-parameters-card').style.display = 'block';
+                document.getElementById('back-navigation-bar').style.display = 'block';
+            }
+
+            if(page === 'Construcao') {
+                document.getElementById('prices-construcao-fields').style.display = 'grid';
+                document.getElementById('prices-redes-fields').style.display = 'none';
+                document.getElementById('extra-equipments-container').style.display = 'none';
+            } else if (page === 'Redes') {
+                document.getElementById('prices-construcao-fields').style.display = 'none';
+                document.getElementById('prices-redes-fields').style.display = 'grid';
+                document.getElementById('extra-equipments-container').style.display = 'block';
+            }
+            document.getElementById('results-area').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetToHome() { switchPage('Home'); }
+
+        function switchCivilTab(tab) {
+            currentCivilTab = tab;
+            document.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.civil-sub-panel').forEach(p => p.style.display = 'none');
+            document.querySelectorAll('.civil-info').forEach(i => i.style.display = 'none');
+            
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            document.getElementById(`sub-${tab}`).style.display = 'block';
+            document.getElementById(`info-${tab}`).style.display = 'block';
+            document.getElementById('results-area').style.display = 'none';
+        }
+
+        function toggleExpander() {
+            const body = document.getElementById('prices-expander');
+            const icon = document.getElementById('expander-icon');
+            if(body.style.display === 'block') {
+                body.style.display = 'none';
+                icon.innerText = '▼';
+            } else {
+                body.style.display = 'block';
+                icon.innerText = '▲';
+            }
+        }
+
+        function addExtraEquipment() {
+            extraEquipments.push({ nome: '', marca: '', preco: '', quantidade: 1 });
+            renderExtraEquipments();
+        }
+
+        function removeExtraEquipment(index) {
+            extraEquipments.splice(index, 1);
+            renderExtraEquipments();
+        }
+
+        function updateExtraItem(index, field, value) {
+            extraEquipments[index][field] = field === 'nome' || field === 'marca' ? value : parseFloat(value) || 0;
+        }
+
+        function renderExtraEquipments() {
+            const container = document.getElementById('extra-list');
+            container.innerHTML = '';
+            extraEquipments.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'equipment-row';
+                div.innerHTML = `
+                    <input type="text" value="${item.nome}" oninput="updateExtraItem(${index}, 'nome', this.value)" placeholder="Dispositivo (Ex: Roteador)">
+                    <input type="text" value="${item.marca}" oninput="updateExtraItem(${index}, 'marca', this.value)" placeholder="Modelo/Marca">
+                    <input type="number" value="${item.preco}" oninput="updateExtraItem(${index}, 'preco', this.value)" placeholder="R$ Unitário">
+                    <input type="number" value="${item.quantidade}" min="1" oninput="updateExtraItem(${index}, 'quantidade', this.value)" placeholder="Qtd">
+                    <button class="btn-danger" onclick="removeExtraEquipment(${index})">🗑️</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function processarResultadosVisuais(modulo, total, resumoText, custosDetalhe, bomHtml) {
+            currentCalculatedData = { modulo, total, resumoText, custosDetalhe, bomHtml };
+            
+            document.getElementById('kpi-cost-title').innerText = `Total (${modulo})`;
+            document.getElementById('res-total-cost').innerText = `R$ ${total.toFixed(2)}`;
+            document.getElementById('res-summary').innerText = resumoText;
+            document.getElementById('res-bom-list').innerHTML = bomHtml;
+
+            const arrABC = Object.keys(custosDetalhe).map(key => {
+                return { item: key, custo: custosDetalhe[key] };
+            }).filter(i => i.custo > 0);
+
+            arrABC.sort((a, b) => b.custo - a.custo);
+
+            const tbody = document.getElementById('res-abc-table');
+            tbody.innerHTML = '';
+            arrABC.forEach(item => {
+                const pct = total > 0 ? (item.custo / total) * 100 : 0;
+                tbody.innerHTML += `<tr><td style="font-weight:500;">${item.item}</td><td>R$ ${item.custo.toFixed(2)}</td><td style="color:var(--text-muted); font-weight:600;">${pct.toFixed(1)}%</td></tr>`;
+            });
+
+            currentCalculatedData.curvaABC = arrABC;
+            document.getElementById('results-area').style.display = 'block';
+            document.getElementById('results-area').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // --- SISTEMAS DE CÁLCULO REVISADOS ---
+
+        function calcularReboco() {
+            const l = parseFloat(document.getElementById('reboco_l').value) || 0;
+            const h = parseFloat(document.getElementById('reboco_h').value) || 0;
+            const sides = parseInt(document.getElementById('reboco_sides').value) || 1;
+            const t_cm = parseFloat(document.getElementById('reboco_t').value) || 0;
+
+            const p_cimento = parseFloat(document.getElementById('p_cimento').value);
+            const p_areia = parseFloat(document.getElementById('p_areia').value);
+            const mo_reboco = parseFloat(document.getElementById('p_mo_reboco').value);
+            const perda = 1 + (parseFloat(document.getElementById('perda_civil').value) / 100);
+
+            const areaTotal = l * h * sides;
+            const volumeMassaM3 = areaTotal * (t_cm / 100) * perda;
+
+            // Cubagem baseada no traço de engenharia 1:2:9 (Cimento : Cal : Areia)
+            const kgCimentoNecessario = volumeMassaM3 * 180;
+            const sacosCimento = kgCimentoNecessario / 50; 
+            const volumeAreiaM3 = volumeMassaM3 * 0.95; 
+
+            const custoCimento = sacosCimento * p_cimento;
+            const custoAreia = volumeAreiaM3 * p_areia;
+            const custoMO = areaTotal * mo_reboco;
+            const total = custoCimento + custoAreia + custoMO;
+
+            const detalhes = { "Cimento CP-II": custoCimento, "Areia Lavada": custoAreia, "Mão de Obra (Reboco)": custoMO };
+            const bom = `
+                <p>🔹 <strong>Sacos de Cimento (50kg):</strong> ${Math.ceil(sacosCimento)} un. <span style="color:var(--text-muted)">(${sacosCimento.toFixed(1)} nominal)</span></p>
+                <p>🔹 <strong>Volume de Areia Lavada Média:</strong> ${volumeAreiaM3.toFixed(3)} m³</p>
+                <p>🔹 <strong>Alocação de Mão de Obra Técnica:</strong> R$ ${custoMO.toFixed(2)}</p>
+            `;
+            processarResultadosVisuais("Reboco", total, `${areaTotal.toFixed(2)} m²`, detalhes, bom);
+        }
+
+        function calcularAlvenaria() {
+            const l = parseFloat(document.getElementById('alve_l').value) || 0;
+            const h = parseFloat(document.getElementById('alve_h').value) || 0;
+
+            const p_bloco = parseFloat(document.getElementById('p_bloco').value);
+            const p_cimento = parseFloat(document.getElementById('p_cimento').value);
+            const p_areia = parseFloat(document.getElementById('p_areia').value);
+            const mo_alve = parseFloat(document.getElementById('p_mo_alvenaria').value);
+            const r_bloco = parseFloat(document.getElementById('r_bloco_m2').value);
+            const perda = 1 + (parseFloat(document.getElementById('perda_civil').value) / 100);
+
+            const area = l * h;
+            const blocos = area * r_bloco * perda;
+            
+            // Consumo real para assentamento de bloco baiano 9x19x19 com junta de 1.5cm
+            const cimentoSacos = (blocos / 100) * 22 / 50;
+            const areiaM3 = (blocos / 100) * 0.11;
+
+            const custoBloco = blocos * p_bloco;
+            const custoCimento = cimentoSacos * p_cimento;
+            const custoAreia = areiaM3 * p_areia;
+            const custoMO = area * mo_alve;
+            const total = custoBloco + custoCimento + custoAreia + custoMO;
+
+            const detalhes = { "Blocos Cerâmicos": custoBloco, "Cimento CP-II": custoCimento, "Areia Média": custoAreia, "Mão de Obra (Alvenaria)": custoMO };
+            const bom = `
+                <p>🔹 <strong>Unidades de Bloco Cerâmico:</strong> ${Math.ceil(blocos).toLocaleString()} un.</p>
+                <p>🔹 <strong>Cimento para Assentamento (50kg):</strong> ${Math.ceil(cimentoSacos)} sacos</p>
+                <p>🔹 <strong>Areia Destinada à Argamassa:</strong> ${areiaM3.toFixed(3)} m³</p>
+                <p>🔹 <strong>Alocação de Mão de Obra Técnica:</strong> R$ ${custoMO.toFixed(2)}</p>
+            `;
+            processarResultadosVisuais("Alvenaria", total, `${area.toFixed(2)} m²`, detalhes, bom);
+        }
+
+        function calcularPiso() {
+            const l = parseFloat(document.getElementById('piso_l').value) || 0;
+            const w = parseFloat(document.getElementById('piso_w').value) || 0;
+
+            const p_piso_mat = parseFloat(document.getElementById('p_piso_mat').value);
+            const p_argamassa = parseFloat(document.getElementById('p_argamassa').value);
+            const p_rejunte = parseFloat(document.getElementById('p_rejunte').value);
+            const mo_piso = parseFloat(document.getElementById('p_mo_piso').value);
+            const perda = 1 + (parseFloat(document.getElementById('perda_civil').value) / 100);
+
+            const area = l * w;
+            const areaComPerda = area * perda;
+
+            // Métricas reais: 8.5kg de argamassa colante por m² e 0.5kg de rejunte por m²
+            const sacosArgamassa = (areaComPerda * 8.5) / 20; 
+            const kgRejunte = areaComPerda * 0.5;
+
+            const custoPiso = areaComPerda * p_piso_mat;
+            const custoArgamassa = sacosArgamassa * p_argamassa; 
+            const custoRejunte = kgRejunte * p_rejunte; 
+            const custoMO = area * mo_piso;
+            const total = custoPiso + custoArgamassa + custoRejunte + custoMO;
+
+            const detalhes = { "Placas de Piso/Revestimento": custoPiso, "Argamassa AC-III": custoArgamassa, "Rejunte Flexível": custoRejunte, "Mão de Obra (Piso)": custoMO };
+            const bom = `
+                <p>🔹 <strong>Área de Revestimento (c/ perda):</strong> ${areaComPerda.toFixed(2)} m²</p>
+                <p>🔹 <strong>Argamassa Colante AC-III (Sacos 20kg):</strong> ${Math.ceil(sacosArgamassa)} un.</p>
+                <p>🔹 <strong>Insumo de Rejuntamento Flexível:</strong> ${kgRejunte.toFixed(1)} kg</p>
+                <p>🔹 <strong>Alocação de Mão de Obra Assentadora:</strong> R$ ${custoMO.toFixed(2)}</p>
+            `;
+            processarResultadosVisuais("Piso", total, `${area.toFixed(2)} m²`, detalhes, bom);
+        }
+
+        function calcularRedes() {
+            const pontos = parseInt(document.getElementById('net_pontos').value) || 0;
+            const eletrocalha = parseFloat(document.getElementById('net_eletro').value) || 0;
+
+            const p_cabo = parseFloat(document.getElementById('p_cabo').value);
+            const p_kit = parseFloat(document.getElementById('p_kit_ponto').value);
+            const p_patch = parseFloat(document.getElementById('p_patch').value);
+            const p_eletro = parseFloat(document.getElementById('p_eletrocalha_mat').value);
+            const p_consumiveis = parseFloat(document.getElementById('p_consumiveis').value);
+            const p_switch = parseFloat(document.getElementById('p_switch').value);
+            const p_rack = parseFloat(document.getElementById('p_rack').value);
+            
+            const mo_cabo = parseFloat(document.getElementById('p_mo_cabo').value);
+            const mo_rack = parseFloat(document.getElementById('p_mo_rack').value);
+            const distMedia = parseFloat(document.getElementById('r_dist_media').value);
+            const perdaCabo = 1 + (parseFloat(document.getElementById('perda_cabo').value) / 100);
+
+            // Divisão baseada em blocos de 24 portas
+            const switches = Math.ceil(pontos / 24);
+            const totalCabosM = pontos * distMedia * perdaCabo;
+
+            const c_cabos = totalCabosM * p_cabo;
+            const c_kits = pontos * p_kit;
+            const c_patch = switches * p_patch;
+            const c_switch = switches * p_switch;
+            const c_rack = 1 * p_rack;
+            const c_eletro = eletrocalha * p_eletro;
+            const c_consumiveis = pontos * p_consumiveis;
+
+            const c_mo_cabeamento = pontos * mo_cabo;
+            const totalU = (switches * 2) + 2; 
+            const c_mo_rack = totalU * mo_rack;
+
+            let totalInsumosBase = c_cabos + c_kits + c_patch + c_switch + c_rack + c_eletro + c_consumiveis + c_mo_cabeamento + c_mo_rack;
+
+            let extraCost = 0;
+            let extraItemsHtml = '';
+            extraEquipments.forEach(item => {
+                if(item.nome) {
+                    const qtd = item.whitespace_variable || item.quantidade || 1;
+                    const sub = (item.preco || 0) * qtd;
+                    extraCost += sub;
+                    extraItemsHtml += `<p style="margin:4px 0;">• <strong>${qtd}x</strong> ${item.nome} ${item.marca ? `(${item.marca})` : ''} — R$ ${sub.toFixed(2)}</p>`;
+                }
+            });
+
+            const totalGeral = totalInsumosBase + extraCost;
+
+            const detalhes = {
+                "Cabos UTP Cat6": c_cabos,
+                "Kits Keystones e Manobra": c_kits,
+                "Patch Panels 24P": c_patch,
+                "Switches Giga POE": c_switch,
+                "Gabinete Rack Central": c_rack,
+                "Infraestrutura (Calhas)": c_eletro,
+                "Consumíveis Técnicos": c_consumiveis,
+                "Mão de Obra Implantação": c_mo_cabeamento + c_mo_rack,
+                "Periféricos Extras": extraCost
+            };
+
+            const bom = `
+                <p>🔹 <strong>Metragem de Cabo Requerido UTP Cat6:</strong> ${totalCabosM.toFixed(1)} metros</p>
+                <p>🔹 <strong>Modulação de Ativos / Passivos:</strong> ${switches} un. Switch e Patch Panel (24P)</p>
+                <p>🔹 <strong>Componentes de Linea (Eletrocalha Metálica):</strong> ${eletrocalha.toFixed(1)} m</p>
+                <p>🔹 <strong>Acessórios de Fixação / Identificação:</strong> ${pontos} kits completos</p>
+                ${extraCost > 0 ? `<div style='margin-top:12px; padding:10px; background:#f1f5f9; border-radius:6px;'><strong>Periféricos Adicionais:</strong>${extraItemsHtml}</div>` : ''}
+            `;
+
+            processarResultadosVisuais("Redes", totalGeral, `${pontos} Pontos Ativos`, detalhes, bom);
+        }
+
+        function gerarPDF() {
+            if(!currentCalculatedData) return;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+            const data = currentCalculatedData;
+
+            const empresaInformada = document.getElementById('pdf_empresa_propria').value.trim();
+            const nomeEmpresaProvedora = empresaInformada || 'KRC PROJETOS';
+            
+            const nomeCliente = document.getElementById('pdf_nome_cliente').value || '__________________________________________________';
+            const enderecoCliente = document.getElementById('pdf_endereco_cliente').value || '__________________________________________________';
+            const foneCliente = document.getElementById('pdf_fone_cliente').value || '________________________';
+            const nomeResponsavel = document.getElementById('pdf_nome_responsavel').value || '__________________________________';
+            const nomeAutorizador = document.getElementById('pdf_nome_autorizador').value || '__________________________________';
+
+            // --- PÁGINA 1 ---
+            doc.setFillColor(15, 23, 42); 
+            doc.rect(0, 0, 210, 32, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont("Helvetica", "bold"); doc.setFontSize(20);
+            doc.text(nomeEmpresaProvedora.toUpperCase(), 20, 14);
+            doc.setFont("Helvetica", "normal"); doc.setFontSize(9);
+            doc.text("Soluções Integradas em Infraestrutura e Engenharia Consultiva", 20, 22);
+            doc.text("Emissão: " + new Date().toLocaleDateString('pt-BR'), 160, 14);
+
+            doc.setDrawColor(203, 213, 225); doc.setFillColor(248, 250, 252);
+            doc.roundedRect(20, 38, 170, 28, 2, 2, 'FD');
+            
+            doc.setTextColor(15, 23, 42); doc.setFont("Helvetica", "bold"); doc.setFontSize(9);
+            doc.text("DADOS DO CLIENTE / PROJETO:", 24, 44);
+            doc.setFont("Helvetica", "normal"); doc.setTextColor(51, 65, 85);
+            doc.text("Cliente: " + nomeCliente, 24, 51);
+            doc.text("Endereço: " + enderecoCliente + "   |   Fone: " + foneCliente, 24, 59);
+
+            doc.setTextColor(15, 23, 42); doc.setFont("Helvetica", "bold"); doc.setFontSize(11);
+            doc.text(`PROPOSTA ORÇAMENTÁRIA — MÓDULO: ${data.modulo.toUpperCase()}`, 20, 75);
+            doc.setFont("Helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(51, 65, 85);
+            doc.text(`Métrica Base Globais de Projeto: ${data.resumoText}`, 20, 81);
+
+            let y = 92;
+            doc.setFont("Helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(5, 150, 105);
+            doc.text("1. COMPOSIÇÃO DE INVESTIMENTOS (CURVA ABC)", 20, y);
+            y += 6;
+            
+            doc.setFont("Helvetica", "bold"); doc.setTextColor(15, 23, 42);
+            doc.text("Item / Etapa Tecnológica", 22, y); doc.text("Subtotal", 125, y); doc.text("Representação", 160, y);
+            doc.line(20, y + 2, 190, y + 2);
+            y += 8;
+
+            doc.setFont("Helvetica", "normal"); doc.setTextColor(51, 65, 85);
+            data.curvaABC.forEach(item => {
+                const pct = (item.custo / data.total) * 100;
+                doc.text(item.item, 22, y);
+                doc.text(`R$ ${item.custo.toFixed(2)}`, 125, y);
+                doc.text(`${pct.toFixed(1)}%`, 160, y);
+                y += 7;
+            });
+
+            y += 5;
+            doc.setFillColor(240, 253, 244);
+            doc.rect(20, y, 170, 12, 'F');
+            doc.setDrawColor(5, 150, 105); doc.line(20, y, 190, y); doc.line(20, y + 12, 190, y + 12);
+            doc.setFont("Helvetica", "bold"); doc.setTextColor(4, 120, 87);
+            doc.text("VALOR TOTAL DO INVESTIMENTO PREVISTO:", 24, y + 8);
+            doc.text(`R$ ${data.total.toFixed(2)}`, 140, y + 8);
+
+            // --- PÁGINA 2 ---
+            doc.addPage();
+            
+            doc.setFillColor(15, 23, 42); doc.rect(0, 0, 210, 12, 'F');
+            doc.setTextColor(255, 255, 255); doc.setFontSize(8); doc.text(`${nomeEmpresaProvedora} — Relatório Técnico Comercial`, 20, 7);
+
+            y = 25;
+            doc.setFont("Helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(5, 150, 105);
+            doc.text("2. DETALHAMENTO DA LISTA QUANTITATIVA DE MATERIAIS (BOM)", 20, y);
+            y += 8;
+
+            doc.setFont("Helvetica", "normal"); doc.setTextColor(51, 65, 85); doc.setFontSize(9.5);
+            
+            const divTemporaria = document.createElement("div");
+            divTemporaria.innerHTML = data.bomHtml;
+            const linhasBOM = divTemporaria.innerText.split('\n').filter(l => l.trim() !== '');
+
+            linhasBOM.forEach(linha => {
+                const limpaLinha = linha.replace(/[🔹|•]/g, '-').trim();
+                doc.text(limpaLinha, 22, y); 
+                y += 7.5;
+            });
+
+            y += 10;
+            doc.setDrawColor(226, 232, 240); doc.setFillColor(248, 250, 252);
+            doc.rect(20, y, 170, 22, 'FD');
+            doc.setTextColor(100, 116, 139); doc.setFontSize(8); doc.setFont("Helvetica", "bold");
+            doc.text("NOTAS LEGAIS IMPORTANTES:", 24, y + 5);
+            doc.setFont("Helvetica", "normal");
+            doc.text("- Este documento trata-se de uma estimativa técnica volumétrica baseada em coeficientes de engenharia aplicados.", 24, y + 10);
+            doc.text("- Validade da Proposta: 15 dias a contar da data de emissão devido à volatilidade de mercado dos insumos.", 24, y + 14);
+            doc.text("- Valores de mão de obra e insumos podem variar conforme condições reais de campo no ato da contratação.", 24, y + 18);
+
+            y += 45;
+            doc.setDrawColor(148, 163, 184);
+            doc.line(25, y, 95, y); 
+            doc.line(115, y, 185, y); 
+
+            y += 5;
+            doc.setFontSize(9); doc.setTextColor(15, 23, 42); doc.setFont("Helvetica", "bold");
+            
+            doc.text(nomeResponsavel, 25, y);
+            doc.text(nomeAutorizador, 115, y);
+            
+            y += 4;
+            doc.setFont("Helvetica", "normal"); doc.setTextColor(100, 116, 139); doc.setFontSize(8);
+            doc.text(`Responsável Técnico (${nomeEmpresaProvedora})`, 25, y);
+            doc.text("Autorização de Execução (Cliente)", 115, y);
+
+            doc.save(`Orcamento_${nomeEmpresaProvedora.replace(/\s+/g, '_')}_${data.modulo.toLowerCase()}.pdf`);
+        }
+    </script>
+</body>
+</html>
