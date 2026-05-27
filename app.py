@@ -13,6 +13,5 @@ def carregar_html():
         html_content = f.read()
     return html_content
 
-# Injetando o HTML dentro do app
-
-components.html(carregar_html(), height=1200, scrolling=True)
+# No seu app.py, tente esta alteração:
+components.html(carregar_html(), width=1500, height=1800, scrolling=True)
